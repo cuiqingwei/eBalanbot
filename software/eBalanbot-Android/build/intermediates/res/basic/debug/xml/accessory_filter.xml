@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- The version is updated automatically by Gradle -->
+    <usb-accessory manufacturer="Edutech" model="eBalanbot" version="0.6.3" />
+</resources><!-- From: file:/Volumes/WORK/eMaker/eBalanbot/software/eBalanbot-Android/res/xml/accessory_filter.xml -->
