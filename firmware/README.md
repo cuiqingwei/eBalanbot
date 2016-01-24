@@ -1,4 +1,4 @@
-# YiBalanbot Arduino code
+# eBalanbot Arduino code
 #### Developed by cuiqingwei, Shanghai Edutech Co.,Ltd  2009-2015
 
 The code is released under the GNU General Public License.
@@ -14,6 +14,6 @@ See the [Getting Started page](http://balanduino.com/get-started) for more infor
 
 Advanced users can also use the included [Makefile](Makefile) if they prefer.
 
-[YiBalanbot_rev12.hex](Balanduino_rev12.hex) and [YiBalanbot_rev13.hex](YiBalandbot_rev13.hex) contains the latest compiled code for revision 1.2 and older and revision 1.3 respectively.
+[eBalanbot_rev12.hex](eBalanduino_rev12.hex) and [eBalanbot_rev13.hex](eBalandbot_rev13.hex) contains the latest compiled code for revision 1.2 and older and revision 1.3 respectively.
 
 For more information visit the official website: <http://www.emaker.club/>

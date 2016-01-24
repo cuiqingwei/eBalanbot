@@ -229,7 +229,7 @@ void updateLEDs() {
         ps4OldBatteryLevel = ps4BatteryLevel;
         PS4.setLed(0, 0, ps4BatteryLevel * 17); // The battery status is in the range from 0-15, by multiplying we get it in the range 0-255
         if (ps4BatteryLevel < 2)
-          PS4.setLedFlash(10, 10); // Blink rapidly
+          PS4.setLedFlash(10, 10); // Blink rapidly 快速闪烁
         else
           PS4.setLedFlash(0xFF, 0); // Turn on
       }
@@ -339,7 +339,7 @@ void onInitXbox() { // This function is called when the controller is first init
 #endif // defined(ENABLE_USB) || defined(ENABLE_SPEKTRUM)
 
 #if defined(ENABLE_SPP) || defined(ENABLE_PS3) || defined(ENABLE_PS4) || defined(ENABLE_WII) || defined(ENABLE_XBOX) || defined(ENABLE_TOOLS) || defined(ENABLE_SPEKTRUM)
-void steer(Command command) {
+void steer(Command command) { // 驾驶操控处理程序
   commandSent = true; // Used to see if there has already been send a command or not
 
   steerStop = false;
@@ -470,7 +470,7 @@ void steer(Command command) {
       turningOffset = scale(abs((int32_t)Xbox.getAnalogHat(LeftHatY) - (int32_t)Xbox.getAnalogHat(RightHatY)), 0, 65535, 0, cfg.turningLimit); // Scale from 0-65535 to 0-turningLimit
   }
 #endif // ENABLE_XBOX
-#ifdef ENABLE_SPEKTRUM
+#ifdef ENABLE_SPEKTRUM // RC遥控器
   if (command == updateSpektrum) {
     if (rcValue[RC_CHAN_PITCH] > 1500) // Forward
       targetOffset = scale(rcValue[RC_CHAN_PITCH], 1500, 2000, 0, cfg.controlAngleLimit);

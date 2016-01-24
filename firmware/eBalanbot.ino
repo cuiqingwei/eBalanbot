@@ -18,12 +18,14 @@
 /* Use this to enable and disable the different options */
 #define ENABLE_TOOLS
 #define ENABLE_SPP
-#define ENABLE_PS3
+//#define ENABLE_PS3
 #define ENABLE_PS4
-#define ENABLE_WII
-#define ENABLE_XBOX
+//#define ENABLE_WII
+//#define ENABLE_XBOX
 #define ENABLE_ADK
-#define ENABLE_SPEKTRUM
+//#define ENABLE_SPEKTRUM
+
+#define CHINESE       // 汉化
 
 #include "eBalanbot.h"
 #include <Arduino.h>  // Standard Arduino header
@@ -95,10 +97,10 @@ PS3BT PS3(&Btd); // The PS3 library supports all three official controllers: the
 #endif
 
 #ifdef ENABLE_PS4
-//PS4BT PS4(&Btd, PAIR); // You should create the instance like this if you want to pair with a PS4 controller, then hold PS and Share on the PS4 controller
+PS4BT PS4(&Btd, PAIR); // You should create the instance like this if you want to pair with a PS4 controller, then hold PS and Share on the PS4 controller
 // Or you can simply send "CPP;" to the robot to start the pairing sequence
 // This can also be done using the Android or via the serial port
-PS4BT PS4(&Btd); // The PS4BT library supports the PS4 controller via Bluetooth
+//PS4BT PS4(&Btd); // The PS4BT library supports the PS4 controller via Bluetooth
 #endif
 
 #ifdef ENABLE_WII
@@ -139,14 +141,14 @@ void setup() {
   rightEncoder1::Set();
   rightEncoder2::Set();
 
-#if BALANDUINO_REVISION < 13 // On the new revisions pin change interrupt is used for all pins
+#if EBALANBOT_REVISION < 13 // On the new revisions pin change interrupt is used for all pins
   attachInterrupt(digitalPinToInterrupt(leftEncoder1Pin), leftEncoder, CHANGE);
   attachInterrupt(digitalPinToInterrupt(rightEncoder1Pin), rightEncoder, CHANGE);
 #endif
 
 #if defined(PIN_CHANGE_INTERRUPT_VECTOR_LEFT) && defined(PIN_CHANGE_INTERRUPT_VECTOR_RIGHT)
   /* Enable encoder pins interrupt sources */
-  #if BALANDUINO_REVISION >= 13
+  #if EBALANBOT_REVISION >= 13
     *digitalPinToPCMSK(leftEncoder1Pin) |= (1 << digitalPinToPCMSKbit(leftEncoder1Pin));
     *digitalPinToPCMSK(rightEncoder1Pin) |= (1 << digitalPinToPCMSKbit(rightEncoder1Pin));
   #endif
@@ -154,14 +156,14 @@ void setup() {
   *digitalPinToPCMSK(rightEncoder2Pin) |= (1 << digitalPinToPCMSKbit(rightEncoder2Pin));
 
   /* Enable pin change interrupts */
-  #if BALANDUINO_REVISION >= 13
+  #if EBALANBOT_REVISION >= 13
     *digitalPinToPCICR(leftEncoder1Pin) |= (1 << digitalPinToPCICRbit(leftEncoder1Pin));
     *digitalPinToPCICR(rightEncoder1Pin) |= (1 << digitalPinToPCICRbit(rightEncoder1Pin));
   #endif
   *digitalPinToPCICR(leftEncoder2Pin) |= (1 << digitalPinToPCICRbit(leftEncoder2Pin));
   *digitalPinToPCICR(rightEncoder2Pin) |= (1 << digitalPinToPCICRbit(rightEncoder2Pin));
-#elif BALANDUINO_REVISION >= 13
-  #error "Please define "PIN_CHANGE_INTERRUPT_VECTOR_LEFT" and "PIN_CHANGE_INTERRUPT_VECTOR_RIGHT" in Balanduino.h"
+#elif EBALANBOT_REVISION >= 13
+  #error "Please define "PIN_CHANGE_INTERRUPT_VECTOR_LEFT" and "PIN_CHANGE_INTERRUPT_VECTOR_RIGHT" in eBalanbot.h"
 #endif
 
   /* Set the motordriver diagnostic pins to inputs */
@@ -338,7 +340,8 @@ void loop() {
   timer = micros();
   // If the robot is laying down, it has to be put in a vertical position before it starts balancing
   // If it's already balancing it has to be ±45 degrees before it stops trying to balance
-  if ((layingDown && (pitch < cfg.targetAngle - 10 || pitch > cfg.targetAngle + 10)) || (!layingDown && (pitch < cfg.targetAngle - 45 || pitch > cfg.targetAngle + 45))) {
+  // if ((layingDown && (pitch < cfg.targetAngle - 10 || pitch > cfg.targetAngle + 10)) || (!layingDown && (pitch < cfg.targetAngle - 45 || pitch > cfg.targetAngle + 45))) {
+  if ((layingDown && (pitch < cfg.targetAngle - 5 || pitch > cfg.targetAngle + 5)) || (!layingDown && (pitch < cfg.targetAngle - 45 || pitch > cfg.targetAngle + 45))) {
     layingDown = true; // The robot is in a unsolvable position, so turn off both motors and wait until it's vertical again
     stopAndReset();
   } else {

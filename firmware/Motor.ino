@@ -149,13 +149,13 @@ static const int8_t enc_states[16] = { 0, -1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 1, 0,
 
 ISR(PIN_CHANGE_INTERRUPT_VECTOR_LEFT) {
   leftEncoder();
-#if BALANDUINO_REVISION >= 13
+#if EBALANBOT_REVISION >= 13
 }
 ISR(PIN_CHANGE_INTERRUPT_VECTOR_RIGHT) {
 #endif
   rightEncoder();
 }
-#elif BALANDUINO_REVISION < 13
+#elif EBALANBOT_REVISION < 13
 #warning "Only interrupting on every second edge!"
 static const int8_t enc_states[16] = { 0, 0, 0, -1, 0, 0, 1, 0, 0, 1, 0, 0, -1, 0, 0, 0 }; // Encoder lookup table if it only interrupts on every second edge - this only works on revision 1.2 and older
 #endif

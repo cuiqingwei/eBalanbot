@@ -61,7 +61,63 @@ void checkSerialData() {
 #ifdef ENABLE_TOOLS
 
 void printMenu() {
-  Serial.println(F("\r\n========================================== Menu ==========================================\r\n"));
+
+#if EBALANBOT_REVISION < 13
+  Serial.println(F("\r\neBalanbot: Revision 1.2\r\n"));
+#else
+  Serial.println(F("\r\neBalanbot: Revision 1.3\r\n"));
+#endif
+
+#ifdef CHINESE
+
+  Serial.println(F("========================================== 菜单 ==========================================\r\n"));
+
+  Serial.println(F("m\t\t\t\t显示帮助菜单\r\n"));
+
+  Serial.println(F("A;\t\t\t\t退出. 发送‘C’键以继续\r\n"));
+
+  Serial.println(F("AC;\t\t\t\t校准加速度计"));     
+  Serial.println(F("MC;\t\t\t\t电机校准\r\n"));     
+  Serial.println(F("ML;\t\t\t\t测试左电机"));
+  Serial.println(F("MR;\t\t\t\t测试右电机\r\n"));
+
+  Serial.println(F("GP;\t\t\t\t读取PID值"));
+  Serial.println(F("GK;\t\t\t\t读取卡尔曼(Kalman)滤波值"));
+  Serial.println(F("GS;\t\t\t\t读取设定参数"));
+  Serial.println(F("GI;\t\t\t\t读取版本信息\r\n"));
+
+  Serial.println(F("SP,Kp;\t\t\t\t设定比例调节系数,Kp值"));
+  Serial.println(F("SI,Ki;\t\t\t\t设定积分调节系数,Ki值"));
+  Serial.println(F("SD,Kd;\t\t\t\t设定微分调节系数,Kd值"));
+  Serial.println(F("ST,targetAngle;\t\t\t设定平衡目标角度"));
+  Serial.println(F("SK,Qangle,Qbias,Rmeasure;\t设定卡尔曼(Kalman)滤波参数"));
+  Serial.println(F("SA,angle;\t\t\t设定最大控制角度"));
+  Serial.println(F("SU,value;\t\t\t设定最大转向值"));
+  Serial.println(F("SB,value;\t\t\t设定自动回位 (true = 1, false = 0)\r\n"));
+
+  Serial.println(F("IB;\t\t\t\t开始发送IMU惯性测量单元值"));
+  Serial.println(F("IS;\t\t\t\t停止发送IMU惯性测量单元值"));
+  Serial.println(F("RB;\t\t\t\t开始发送报告值"));
+  Serial.println(F("RS;\t\t\t\t停止发送报告值\r\n"));
+
+  Serial.println(F("CS;\t\t\t\t发送停止命令"));
+  Serial.println(F("CJ,x,y;\t\t\t\t使用用 x,y 坐标控制eBalanbot"));
+  Serial.println(F("CM,pitch,roll;\t\t\t使用仰俯(pitch)和旋转(roll)控制eBalanbot"));
+#ifdef ENABLE_WII
+  Serial.println(F("CPW;\t\t\t\t开始和Wiimote手柄配对"));
+#endif
+#ifdef ENABLE_PS4
+  Serial.println(F("CPP;\t\t\t\t开始和PS4手柄配对"));
+#endif
+  Serial.println(F("CR;\t\t\t\t从EEPROM恢复默认值\r\n"));
+
+#ifdef ENABLE_SPEKTRUM
+  Serial.println(F("BS;\t\t\t\t和Spektrum卫星接收机绑定"));  // Spektrum卫星接收机
+#endif
+
+#else // English
+
+  Serial.println(F("========================================== Menu ==========================================\r\n"));
 
   Serial.println(F("m\t\t\t\tSend to show this menu\r\n"));
 
@@ -103,11 +159,20 @@ void printMenu() {
 #ifdef ENABLE_SPEKTRUM
   Serial.println(F("BS;\t\t\t\tBind with Spektrum satellite receiver"));
 #endif
+
+#endif  // end of chinese
+
   Serial.println(F("\r\n==========================================================================================\r\n"));
 }
 
+/* 校准加速度计 */
 void calibrateAcc() {
-  Serial.println(F("Please put the robot perfectly horizontal on its side and then send any character to start the calibration routine"));
+#ifdef CHINESE
+  Serial.println(F("请将eBalanbot倒向其一侧完全水平放置，然后发送任何字符开始校准程序"));
+#else
+  Serial.println(F("Please put the eBalanbot perfectly horizontal on its side and then send any character to start the calibration routine"));
+#endif  // end of chinese
+  
   while (Serial.read() == -1);
 
   int16_t accYbuffer[25], accZbuffer[25];
@@ -118,10 +183,16 @@ void calibrateAcc() {
     delay(10);
   }
   if (!checkMinMax(accYbuffer, 25, 1000) || !checkMinMax(accZbuffer, 25, 1000)) {
+#ifdef CHINESE
+    Serial.print(F("加速度计校准出错"));
+#else
     Serial.print(F("Accelerometer calibration error"));
+#endif  // end of chinese
     buzzer::Set();
-    while (1); // Halt
+    while (1); // Halt 停止
   }
+
+  /* 均值滤波 */
   for (uint8_t i = 0; i < 25; i++) {
     cfg.accYzero += accYbuffer[i];
     cfg.accZzero += accZbuffer[i];
@@ -129,30 +200,50 @@ void calibrateAcc() {
   cfg.accYzero /= 25.0f;
   cfg.accZzero /= 25.0f;
 
-  if (cfg.accYzero < 0) // Check which side is laying down
+  if (cfg.accYzero < 0) // Check which side is laying down 检查往哪一面倒下
     cfg.accYzero += 16384.0f; // 16384.0 is equal to 1g while the full scale range is ±2g
   else
     cfg.accYzero -= 16384.0f;
-
+#ifdef CHINESE
+  Serial.print(F("新零值(g's): "));
+#else
   Serial.print(F("New zero values (g's): ")); // Print the new values in g's
+#endif  // end of chinese  
   Serial.print(cfg.accYzero / 16384.0f);
   Serial.print(F(","));
   Serial.println(cfg.accZzero / 16384.0f);
 
+  /* 保存校准参数 */
   updateConfig(); // Store the new values in the EEPROM
+#ifdef CHINESE
+  Serial.println(F("减速度计校准完成"));
+#else
   Serial.println(F("Calibration of the accelerometer is done"));
+#endif  // end of chinese  
 }
 
+/* 电机校准 */
 void calibrateMotor() {
-  Serial.println(F("Put the robot so the wheels can move freely and then send any character to start the motor calibration routine"));
+#ifdef CHINESE
+  Serial.println(F("放置好eBalanbot，确保车轮可以自由移动，然后发送任何字符启动马达校准例程"));
+#else
+  Serial.println(F("Put the eBalanbot so the wheels can move freely and then send any character to start the motor calibration routine"));
+#endif  // end of chinese  
   while (Serial.read() == -1);
-
+#ifdef CHINESE
+  Serial.println(F("估计最小起始值,当第一次两个值不会再改变，然后发送任何字符来继续\r\n"));
+#else
   Serial.println(F("Estimating minimum starting value. When the first two values do not change anymore, then send any character to continue\r\n"));
+ #endif  // end of chinese  
   delay(2000);
   float leftSpeed = 10.0f, rightSpeed = 10.0f;
   testMotorSpeed(&leftSpeed, &rightSpeed, 1.0f, 1.0f);
 
+#ifdef CHINESE
+  Serial.print(F("\r\n速度(L/R): "));
+#else
   Serial.print(F("\r\nThe speed values are (L/R): "));
+#endif  // end of chinese   
   Serial.print(leftSpeed);
   Serial.print(F(","));
   Serial.println(rightSpeed);
@@ -165,12 +256,19 @@ void calibrateMotor() {
     cfg.rightMotorScaler = 1.0f;
   }
 
+#ifdef CHINESE  
+  Serial.print(F("电机的标量(L/R): "));
+#else
   Serial.print(F("The motor scalars are now (L/R): "));
+#endif  // end of chinese   
   Serial.print(cfg.leftMotorScaler);
   Serial.print(F(","));
   Serial.println(cfg.rightMotorScaler);
-
+#ifdef CHINESE 
+  Serial.println(F("现在电机将再次旋转起来了.现在的速度值应几乎相等.发送任何字符退出\r\n"));
+#else 
   Serial.println(F("Now the motors will spin up again. Now the speed values should be almost equal. Send any character to exit\r\n"));
+#endif  // end of chinese   
   delay(2000);
   leftSpeed = rightSpeed = 10.0f; // Reset speed values
   testMotorSpeed(&leftSpeed, &rightSpeed, cfg.leftMotorScaler, cfg.rightMotorScaler);
@@ -178,18 +276,30 @@ void calibrateMotor() {
   float maxSpeed = max(leftSpeed, rightSpeed);
   float minSpeed = min(leftSpeed, rightSpeed);
 
+#ifdef CHINESE 
+  Serial.print(F("差速: "));
+#else
   Serial.print(F("The difference is now: "));
+#endif  // end of chinese 
+
   Serial.print((maxSpeed - minSpeed) / maxSpeed * 100.0f);
   Serial.println("%");
 
   updateConfig(); // Store the new values in the EEPROM
+#ifdef CHINESE   
+  Serial.println(F("电机校准完成"));
+#else
   Serial.println(F("Calibration of the motors is done"));
+#endif  // end of chinese 
 }
 
 void testMotorSpeed(float *leftSpeed, float *rightSpeed, float leftScaler, float rightScaler) {
   int32_t lastLeftPosition = readLeftEncoder(), lastRightPosition = readRightEncoder();
-
+#ifdef CHINESE  
+  Serial.println(F("速度(L), 速度 (R), 速度值 (L), 速度值 (R)"));
+#else
   Serial.println(F("Velocity (L), Velocity (R), Speed value (L), Speed value (R)"));
+#endif  // end of chinese 
   while (Serial.read() == -1) {
     moveMotor(left, forward, (*leftSpeed)*leftScaler);
     moveMotor(right, forward, (*rightSpeed)*rightScaler);
@@ -325,7 +435,11 @@ void setValues(char *input) {
 
 #ifdef ENABLE_SPEKTRUM
   else if (input[0] == 'B' && input[1] == 'S') { // Bind with Spektrum satellite receiver on next power up
+#ifdef CHINESE     
+    Serial.println(F("关闭eBalanbot和卫星接收机电源.下次上电进入配对进程"));
+#else
     Serial.println(F("Now turn the eBalanbot and the satellite receiver off by removing the power. The next time it turns on it will start the binding process with the satellite receiver"));
+#endif // end of chinese
     cfg.bindSpektrum = true; // After this you should turn off the robot and then turn it on again
     updateConfig();
   }
@@ -335,6 +449,11 @@ void setValues(char *input) {
     calibrateAcc();
   else if (input[0] == 'M' && input[1] == 'C') // Motor calibration
     calibrateMotor();
+  else if (input[0] == 'M' && input[1] == 'L') // Left Motor Test
+     moveMotor(left, forward, 50);
+  else if (input[0] == 'M' && input[1] == 'R') // Right Motor Test
+     moveMotor(right, forward, 50);
+
 
   /* For sending PID and IMU values */
   else if (input[0] == 'G') { // The different application sends when it needs the PID, settings or info
@@ -451,7 +570,11 @@ bool calibrateGyro() {
     delay(10);
   }
   if (!checkMinMax(gyroXbuffer, 25, 2000)) {
-    Serial.println(F("Gyro calibration error"));
+  #ifdef CHINESE 
+    Serial.println(F("陀螺仪校准出错")); 
+  #else
+    Serial.println(F("Gyro calibration error")); 
+  #endif // end of chinese
     buzzer::Set();
     return 1;
   }

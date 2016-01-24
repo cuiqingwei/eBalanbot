@@ -53,14 +53,36 @@ enum Command {
 // The source is available here: https://github.com/felis/USB_Host_Shield_2.0/blob/master/avrpins.h
 // I do this to save processing power - see this page for more information: http://www.billporter.info/ready-set-oscillate-the-fastest-way-to-change-arduino-pins/
 // Also see the Arduino port manipulation guide: http://www.arduino.cc/en/Reference/PortManipulation
-
+//                   +---\/---+
+//  EN1A (D25) PB0  1|        |40 PA0 (A0 / D7)
+//  EN1B (D26) PB1  2|        |39 PA1 (A1 / D8)
+//   M2A (D15) PB2  3|        |38 PA2 (A2 / D9)
+//   M2B (D16) PB3  4|        |37 PA3 (A3 / D10)
+//    LED (D6) PB4  5|        |36 PA4 (A4 / D11) BUZZER
+//  MOSI (D27) PB5  6|        |35 PA5 (A5 / D12) VBAT
+//  MISO (D28) PB6  7|        |34 PA6 (D30) EN2A
+//   SCK (D29) PB7  8|        |33 PA7 (D31) EN2B
+//             RST  9|        |32 AREF
+//             VCC 10|        |31 GND
+//             GND 11|        |30 AVCC
+//           XTAL2 12|        |29 PC7 (D24) M1B
+//           XTAL1 13|        |28 PC6 (D23) M1A
+//     RX (D0) PD0 14|        |27 PC5 (D22) M2EN
+//     TX (D1) PD1 15|        |26 PC4 (D21) M1EN
+//    RX1 (D2) PD2 16|        |25 PC3 (D20) MAX_SS
+//    TX1 (D3) PD3 17|        |24 PC2 (D19) MAX_INT
+// PWM1B (D17) PD4 18|        |23 PC1 (D13) SDA
+// PWM1A (D18) PD5 19|        |22 PC0 (D14) SCL
+//  PWM2B (D4) PD6 20|        |21 PD7 (D5) PWM2A
+//                   +--------+
+//
 /* Left motor */
 #define leftA P23
 #define leftB P24
 #define leftPWM P18
 
 /* Right motor */
-#if BALANDUINO_REVISION < 13
+#if EBALANBOT_REVISION < 13
   #define rightA P25
   #define rightB P26
 #else
@@ -74,7 +96,7 @@ enum Command {
 #define rightDiag P22
 
 /* Encoders */
-#if BALANDUINO_REVISION < 13
+#if EBALANBOT_REVISION < 13
   #define leftEncoder1Pin 15 // Used for attachInterrupt
   #define leftEncoder2Pin 30 // Used for pin change interrupt
   #define rightEncoder1Pin 16 // Used for attachInterrupt
@@ -96,7 +118,7 @@ enum Command {
 #define rightEncoder2 MAKE_PIN(rightEncoder2Pin)
 
 // You should change these to match your pins
-#if BALANDUINO_REVISION < 13
+#if EBALANBOT_REVISION < 13
   #define PIN_CHANGE_INTERRUPT_VECTOR_LEFT PCINT0_vect
   #define PIN_CHANGE_INTERRUPT_VECTOR_RIGHT PCINT0_vect
 #else
@@ -105,7 +127,7 @@ enum Command {
 #endif
 
 // Buzzer used for feedback, it can be disconnected using the jumper
-#if BALANDUINO_REVISION < 13
+#if EBALANBOT_REVISION < 13
   #define buzzer P5
 #else
   #define buzzer P11 /* A4 */
@@ -235,8 +257,8 @@ static uint32_t spekConnectedTimer; // Timer used to check if the connection is 
 // We use inline to eliminates the size and speed overhead of calling and returning from a function that is only used once.
 static inline void readSPPData();
 static inline void readUsb();
-static void updateLEDs();
-static void onInitPS3();
+static void updateLEDs(); 
+static void onInitPS3(); 
 static void onInitPS4();
 static void onInitWii();
 static void onInitXbox();
