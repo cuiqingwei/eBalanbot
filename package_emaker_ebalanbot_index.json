@@ -19,8 +19,8 @@
           },
           "url": "https://github.com/cuiqingwei/eBalanbot/releases/download/1.1.0/eBalanbot-hardware.zip",
           "archiveFileName": "eBalanbot-hardware.zip",
-          "checksum": "SHA-256:fee76023a4d182d6da3cbf2630ac6986409eacc00c47b191cc5972098b0cfeed",
-          "size": "6757112",
+          "checksum": "SHA-256:b319df7a82664da37df17cbe8cb7ef637f5d1ce6f642b6b2aaacebe005793a82",
+          "size": "6746704",
           "boards": [
             {"name": "eBalanbot"}
           ],
