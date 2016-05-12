@@ -11,7 +11,7 @@
  -------------------
 
  cuiqingwei, Shanghai Edutech
- Web      :  http://www.emaker.club
+ Web      :  http://www.emaker.space
  e-mail   :  cuiqingwei@gmail.com
 */
 
@@ -83,9 +83,11 @@ enum Command {
 
 /* Right motor */
 #if EBALANBOT_REVISION < 13
+  #define BALANDUINO_REVISION 12
   #define rightA P25
   #define rightB P26
 #else
+  #define BALANDUINO_REVISION 13
   #define rightA P15
   #define rightB P16
 #endif

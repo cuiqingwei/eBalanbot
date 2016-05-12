@@ -11,7 +11,7 @@
  -------------------
 
  cuiqingwei, Shanghai Edutech
- Web      :  http://www.emaker.club
+ Web      :  http://www.emaker.space
  e-mail   :  cuiqingwei@gmail.com
 */
 
@@ -339,7 +339,8 @@ void onInitXbox() { // This function is called when the controller is first init
 #endif // defined(ENABLE_USB) || defined(ENABLE_SPEKTRUM)
 
 #if defined(ENABLE_SPP) || defined(ENABLE_PS3) || defined(ENABLE_PS4) || defined(ENABLE_WII) || defined(ENABLE_XBOX) || defined(ENABLE_TOOLS) || defined(ENABLE_SPEKTRUM)
-void steer(Command command) { // 驾驶操控处理程序
+/* 操控处理程序 */
+void steer(Command command) {
   commandSent = true; // Used to see if there has already been send a command or not
 
   steerStop = false;

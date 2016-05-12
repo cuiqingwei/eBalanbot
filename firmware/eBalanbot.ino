@@ -11,7 +11,7 @@
  -------------------
 
  cuiqingwei, Shanghai Edutech
- Web      :  http://www.emaker.club
+ Web      :  http://www.emaker.space
  e-mail   :  cuiqingwei@gmail.com
 */
 
@@ -25,7 +25,7 @@
 #define ENABLE_ADK
 //#define ENABLE_SPEKTRUM
 
-#define CHINESE       // 汉化
+//#define CHINESE       // 汉化
 
 #include "eBalanbot.h"
 #include <Arduino.h>  // Standard Arduino header
@@ -239,8 +239,8 @@ void setup() {
   i2cBuffer[0] = 15; // Set the sample rate to 500Hz - 8kHz/(15+1) = 500Hz
   i2cBuffer[1] = 0x00; // Disable FSYNC and set 260 Hz Acc filtering, 256 Hz Gyro filtering, 8 KHz sampling
 #endif
-  i2cBuffer[2] = 0x00; // Set Gyro Full Scale Range to ±250deg/s
-  i2cBuffer[3] = 0x00; // Set Accelerometer Full Scale Range to ±2g
+  i2cBuffer[2] = 0x00; // Set Gyro Full Scale Range to ±250deg/s    陀螺仪量程：±250度/秒
+  i2cBuffer[3] = 0x00; // Set Accelerometer Full Scale Range to ±2g 加速度量程：±2g
   while (i2cWrite(0x19, i2cBuffer, 4, true)); // Write to all four registers at once
 
   delay(100); // Wait for the sensor to get ready
@@ -250,8 +250,9 @@ void setup() {
   int16_t accY = ((i2cBuffer[0] << 8) | i2cBuffer[1]);
   int16_t accZ = ((i2cBuffer[2] << 8) | i2cBuffer[3]);
   // atan2 outputs the value of -π to π (radians) - see http://en.wikipedia.org/wiki/Atan2
-  // We then convert it to 0 to 2π and then from radians to degrees
-  accAngle = (atan2((float)accY - cfg.accYzero, (float)accZ - cfg.accZzero) + PI) * RAD_TO_DEG;
+  // We then convert it to 0 to 2π and then from radians to degrees 弧度转角度 http://www.teacherschoice.com.au/maths_library/angles/angles.htm
+  /* 根据双轴加速度分量求角度 */
+  accAngle = (atan2((float)accY - cfg.accYzero, (float)accZ - cfg.accZzero) + PI) * RAD_TO_DEG; // RAD_TO_DEG = 180/π 
 
   kalman.setAngle(accAngle); // Set starting angle
   pitch = accAngle;
@@ -290,7 +291,7 @@ void loop() {
     while (1);
   }
 
-#if defined(ENABLE_WII) || defined(ENABLE_PS4) // We have to read much more often from the Wiimote and PS4 controller to decrease latency
+#if defined(ENABLE_WII) || defined(ENABLE_PS4) // We have to read much more often from the Wiimote and PS4 controller to decrease latency 减少等待
   bool readUSB = false;
 #ifdef ENABLE_WII
   if (Wii.wiimoteConnected)
@@ -311,8 +312,9 @@ void loop() {
   int16_t gyroX = ((i2cBuffer[6] << 8) | i2cBuffer[7]);
 
   // atan2 outputs the value of -π to π (radians) - see http://en.wikipedia.org/wiki/Atan2
-  // We then convert it to 0 to 2π and then from radians to degrees
-  accAngle = (atan2((float)accY - cfg.accYzero, (float)accZ - cfg.accZzero) + PI) * RAD_TO_DEG;
+  // We then convert it to 0 to 2π and then from radians to degrees 弧度转角度 http://www.teacherschoice.com.au/maths_library/angles/angles.htm
+  /* 根据双轴加速度分量求角度 */
+  accAngle = (atan2((float)accY - cfg.accYzero, (float)accZ - cfg.accZzero) + PI) * RAD_TO_DEG; // RAD_TO_DEG = 180/π 
 
   uint32_t timer = micros();
   // This fixes the 0-360 transition problem when the accelerometer angle jumps between 0 and 360 degrees
@@ -321,6 +323,9 @@ void loop() {
     pitch = accAngle;
     gyroAngle = accAngle;
   } else {
+    /* 按陀螺仪来说，MPU6050 有四个量程可选：
+      ±250，±500，±1000，±2000 度/s
+      比方说，设置了是 ±250 , 那么-32768 - +32768 就代表了 -250 - +250 。此时它的LSB(最低有效位)是 131 LSB/(度/s) */
     float gyroRate = ((float)gyroX - gyroXzero) / 131.0f; // Convert to deg/s
     float dt = (float)(timer - kalmanTimer) / 1000000.0f;
     gyroAngle += gyroRate * dt; // Gyro angle is only used for debugging

@@ -11,7 +11,7 @@
  -------------------
 
  cuiqingwei, Shanghai Edutech
- Web      :  http://www.emaker.club
+ Web      :  http://www.emaker.space
  e-mail   :  cuiqingwei@gmail.com
 */
 
@@ -164,6 +164,13 @@ void printMenu() {
 
   Serial.println(F("\r\n==========================================================================================\r\n"));
 }
+/*
+陀螺仪测角速度的，加速度是测线性加速度的。前者是惯性原理，后者是利用的力平衡原理。
+
+加速度计在较长时间的测量值是正确的，而在较短时间内由于信号噪声的存在，而有误差。陀螺仪在较短时间内则比较准确而较长时间则会有与漂移而存有误差。
+因此，需要两者（相互调整）来确保航向的正确。
+
+现在一般的姿态方面的惯性应用，如IMU（惯性测量单元），由三轴陀螺仪和三轴加速度计组合而成。*/
 
 /* 校准加速度计 */
 void calibrateAcc() {
@@ -177,6 +184,7 @@ void calibrateAcc() {
 
   int16_t accYbuffer[25], accZbuffer[25];
   for (uint8_t i = 0; i < 25; i++) {
+    /* 读取Y、Z轴加速度感应器测量值.起始地址0x3D,ACCEL_YOUT_H、ACCEL_YOUT_L、ACCEL_ZOUT_H、ACCEL_ZOUT_L*/
     while (i2cRead(0x3D, i2cBuffer, 4));
     accYbuffer[i] = ((i2cBuffer[0] << 8) | i2cBuffer[1]);
     accZbuffer[i] = ((i2cBuffer[2] << 8) | i2cBuffer[3]);
@@ -293,6 +301,7 @@ void calibrateMotor() {
 #endif  // end of chinese 
 }
 
+/* 电机速度检查 */
 void testMotorSpeed(float *leftSpeed, float *rightSpeed, float leftScaler, float rightScaler) {
   int32_t lastLeftPosition = readLeftEncoder(), lastRightPosition = readRightEncoder();
 #ifdef CHINESE  
@@ -422,6 +431,7 @@ void printValues() {
   }
 }
 
+/* 命令处理 */
 void setValues(char *input) {
   if (input[0] == 'A' && input[1] == ';') { // Abort
     stopAndReset();
@@ -562,9 +572,11 @@ void setValues(char *input) {
 }
 #endif // defined(ENABLE_TOOLS) || defined(ENABLE_SPP)
 
+/* 校准陀螺仪 */
 bool calibrateGyro() {
   int16_t gyroXbuffer[25];
   for (uint8_t i = 0; i < 25; i++) {
+    /* 读取X轴陀螺仪感应器测量值.起始地址0x43,GYRO_XOUT_H、GYRO_XOUT_L*/    
     while (i2cRead(0x43, i2cBuffer, 2));
     gyroXbuffer[i] = ((i2cBuffer[0] << 8) | i2cBuffer[1]);
     delay(10);
@@ -584,7 +596,8 @@ bool calibrateGyro() {
   return 0;
 }
 
-bool checkMinMax(int16_t *array, uint8_t length, int16_t maxDifference) { // Used to check that the robot is laying still while calibrating
+/* 用于检查校准时eBalanbot是不是侧卧的 */
+bool checkMinMax(int16_t *array, uint8_t length, int16_t maxDifference) { // Used to check that the eBalanbot is laying still while calibrating
   int16_t min = array[0], max = array[0];
   for (uint8_t i = 1; i < length; i++) {
     if (array[i] < min)

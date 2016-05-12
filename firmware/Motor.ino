@@ -11,7 +11,7 @@
  -------------------
 
  cuiqingwei, Shanghai Edutech
- Web      :  http://www.emaker.club
+ Web      :  http://www.emaker.space
  e-mail   :  cuiqingwei@gmail.com
 */
 
@@ -142,7 +142,11 @@ void stopAndReset() {
 }
 
 /* Interrupt routine and encoder read functions */
-// It uses gray code to detect if any pulses are missed. See: https://www.circuitsathome.com/mcu/reading-rotary-encoder-on-arduino and http://en.wikipedia.org/wiki/Rotary_encoder#Incremental_rotary_encoder.
+// It uses gray code(格雷码) to detect if any pulses are missed. 
+// 参考一下链接
+// https://zh.wikipedia.org/wiki/%E6%97%8B%E8%BD%89%E7%B7%A8%E7%A2%BC%E5%99%A8
+// http://en.wikipedia.org/wiki/Rotary_encoder#Incremental_rotary_encoder.
+// https://www.circuitsathome.com/mcu/reading-rotary-encoder-on-arduino and 
 
 #if defined(PIN_CHANGE_INTERRUPT_VECTOR_LEFT) && defined(PIN_CHANGE_INTERRUPT_VECTOR_RIGHT)
 static const int8_t enc_states[16] = { 0, -1, 1, 0, 1, 0, 0, -1, -1, 0, 0, 1, 0, 1, -1, 0 }; // Encoder lookup table if it interrupts on every edge
