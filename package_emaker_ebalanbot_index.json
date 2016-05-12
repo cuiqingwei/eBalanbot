@@ -1,0 +1,43 @@
+{
+  "packages": [
+    {
+      "name": "eBalanbot",
+      "maintainer": "Edutech Emaker",
+      "websiteURL": "http://www.emaker.space/",
+      "email": "support@emaker.space",
+      "help": {
+        "online": "http://forum.emaker.space/"
+      },
+      "platforms": [
+        {
+          "name": "eBalanbot",
+          "architecture": "avr",
+          "version": "1.0.0",
+          "category": "eBalanbot",
+          "help": {
+            "online": "http://forum.emaker.space/"
+          },
+          "url": "https://github.com/cuiqingwei/eBalanbot/releases/download/1.0.0/eBalanbot-hardware.zip",
+          "archiveFileName": "eBalanbot-hardware.zip",
+          "checksum": "SHA-256:4a497fde3ddcab9d9896a65d44625cf8c4093d7c30c93ca740e8f4ab58414a97",
+          "size": "69428265",
+          "boards": [
+            {"name": "eBalanbot"}
+          ],
+          "toolsDependencies": [
+            {
+              "packager": "arduino",
+              "name": "avr-gcc",
+              "version": "4.8.1-arduino5"
+            },
+            {
+              "packager": "arduino",
+              "name": "avrdude",
+              "version": "6.0.1-arduino5"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
